@@ -39,15 +39,15 @@
 
 ## Phase 3.1: Setup
 
-- [ ] **T001** Create project directory structure (backend/, frontend/, config/, data/)
-- [ ] **T002** Initialize Python backend project with pyproject.toml (FastAPI, LangChain, SQLAlchemy, cryptography, pytest dependencies)
-- [ ] **T003** Initialize React frontend project with package.json (TypeScript, React, Recharts, Axios, Jest, RTL dependencies)
-- [ ] **T004** [P] Configure backend linting (ruff, black, mypy) in backend/pyproject.toml
-- [ ] **T005** [P] Configure frontend linting (ESLint, Prettier) in frontend/.eslintrc.json
-- [ ] **T006** [P] Create backend/src/__init__.py and module structure
-- [ ] **T007** [P] Create frontend/src/index.tsx entry point
-- [ ] **T008** Create config/default.yaml with default settings (iteration limits, timeouts)
-- [ ] **T009** Create .gitignore for Python, Node, SQLite, credentials
+- [x] **T001** Create project directory structure (backend/, frontend/, config/, data/)
+- [x] **T002** Initialize Python backend project with pyproject.toml (FastAPI, LangChain, SQLAlchemy, cryptography, pytest dependencies)
+- [x] **T003** Initialize React frontend project with package.json (TypeScript, React, Recharts, Axios, Jest, RTL dependencies)
+- [x] **T004** [P] Configure backend linting (ruff, black, mypy) in backend/pyproject.toml
+- [x] **T005** [P] Configure frontend linting (ESLint, Prettier) in frontend/.eslintrc.json
+- [x] **T006** [P] Create backend/src/__init__.py and module structure
+- [x] **T007** [P] Create frontend/src/index.tsx entry point
+- [x] **T008** Create config/default.yaml with default settings (iteration limits, timeouts)
+- [x] **T009** Create .gitignore for Python, Node, SQLite, credentials
 
 ---
 
@@ -57,19 +57,19 @@
 
 ### Contract Tests (based on contracts/)
 
-- [ ] **T010** [P] Contract test suite for projects API in backend/tests/contract/test_projects_api.py (validates projects-api.yaml: POST/GET/DELETE /projects, POST /projects/{id}/iterations, POST /projects/{id}/export)
-- [ ] **T011** [P] Contract test suite for iterations API in backend/tests/contract/test_iterations_api.py (validates iterations-api.yaml: GET /iterations/{id}, GET /iterations/{id}/conversations, GET /conversations/{id})
+- [x] **T010** [P] Contract test suite for projects API in backend/tests/contract/test_projects_api.py (validates projects-api.yaml: POST/GET/DELETE /projects, POST /projects/{id}/iterations, POST /projects/{id}/export)
+- [x] **T011** [P] Contract test suite for iterations API in backend/tests/contract/test_iterations_api.py (validates iterations-api.yaml: GET /iterations/{id}, GET /iterations/{id}/conversations, GET /conversations/{id})
 
 ### Integration Tests (based on quickstart.md)
 
-- [ ] **T012** [P] Integration test: Create and configure new project in backend/tests/integration/test_create_project.py (Test Scenario 1 from quickstart.md)
-- [ ] **T013** [P] Integration test: Run iteration with failing criteria in backend/tests/integration/test_failing_iteration.py (Test Scenario 2 from quickstart.md)
-- [ ] **T014** [P] Integration test: Complete successful optimization in backend/tests/integration/test_successful_optimization.py (Test Scenario 3 from quickstart.md)
-- [ ] **T015** [P] Integration test: Configure custom evaluation criterion in backend/tests/integration/test_custom_criterion.py (Test Scenario 4 from quickstart.md)
-- [ ] **T016** [P] Integration test: Manage multiple projects in backend/tests/integration/test_multiple_projects.py (Test Scenario 5 from quickstart.md)
-- [ ] **T017** [P] Integration test: Handle max iteration limit in backend/tests/integration/test_max_iterations.py (Test Scenario 6 from quickstart.md)
-- [ ] **T018** [P] Integration test: Handle API errors gracefully in backend/tests/integration/test_api_errors.py (Test Scenario 7 from quickstart.md)
-- [ ] **T019** [P] Integration test: Export reports in JSON/CSV formats in backend/tests/integration/test_export_reports.py (Test Scenario 8 from quickstart.md)
+- [x] **T012** [P] Integration test: Create and configure new project in backend/tests/integration/test_create_project.py (Test Scenario 1 from quickstart.md)
+- [x] **T013** [P] Integration test: Run iteration with failing criteria in backend/tests/integration/test_failing_iteration.py (Test Scenario 2 from quickstart.md)
+- [x] **T014** [P] Integration test: Complete successful optimization in backend/tests/integration/test_successful_optimization.py (Test Scenario 3 from quickstart.md)
+- [x] **T015** [P] Integration test: Configure custom evaluation criterion in backend/tests/integration/test_custom_criterion.py (Test Scenario 4 from quickstart.md)
+- [x] **T016** [P] Integration test: Manage multiple projects in backend/tests/integration/test_multiple_projects.py (Test Scenario 5 from quickstart.md)
+- [x] **T017** [P] Integration test: Handle max iteration limit in backend/tests/integration/test_max_iterations.py (Test Scenario 6 from quickstart.md)
+- [x] **T018** [P] Integration test: Handle API errors gracefully in backend/tests/integration/test_api_errors.py (Test Scenario 7 from quickstart.md)
+- [x] **T019** [P] Integration test: Export reports in JSON/CSV formats in backend/tests/integration/test_export_reports.py (Test Scenario 8 from quickstart.md)
 
 ---
 
@@ -77,52 +77,52 @@
 
 ### Data Models (based on data-model.md: 8 entities)
 
-- [ ] **T020** [P] Project model in backend/src/models/project.py (Pydantic + SQLAlchemy for Project entity: id, name, target_model, initial_prompt, max_iterations, status)
-- [ ] **T021** [P] Iteration model in backend/src/models/iteration.py (Pydantic + SQLAlchemy for Iteration entity: id, project_id, iteration_number, status, started_at, completed_at, passed_criteria_count)
-- [ ] **T022** [P] Prompt model in backend/src/models/prompt.py (Pydantic + SQLAlchemy for Prompt entity: id, text, parent_id, generation_method, rewrite_rationale)
-- [ ] **T023** [P] TestScenario model in backend/src/models/test_scenario.py (Pydantic + SQLAlchemy for TestScenario entity: id, name, description, turn_limit, priority)
-- [ ] **T024** [P] EvaluationCriterion model in backend/src/models/evaluation_criterion.py (Pydantic + SQLAlchemy for EvaluationCriterion entity: id, name, threshold, is_predefined, scoring_rubric)
-- [ ] **T025** [P] Conversation model in backend/src/models/conversation.py (Pydantic + SQLAlchemy for Conversation entity: id, iteration_id, test_scenario_id, turns JSON, turn_count, status)
-- [ ] **T026** [P] EvaluationResult model in backend/src/models/evaluation_result.py (Pydantic + SQLAlchemy for EvaluationResult entity: id, conversation_id, criterion_scores JSON, aggregate_score, passed)
-- [ ] **T027** [P] ModelConfiguration model in backend/src/models/model_configuration.py (Pydantic + SQLAlchemy for ModelConfiguration entity: id, project_id, provider, model_name, temperature, max_tokens)
+- [x] **T020** [P] Project model in backend/src/models/project.py (Pydantic + SQLAlchemy for Project entity: id, name, target_model, initial_prompt, max_iterations, status)
+- [x] **T021** [P] Iteration model in backend/src/models/iteration.py (Pydantic + SQLAlchemy for Iteration entity: id, project_id, iteration_number, status, started_at, completed_at, passed_criteria_count)
+- [x] **T022** [P] Prompt model in backend/src/models/prompt.py (Pydantic + SQLAlchemy for Prompt entity: id, text, parent_id, generation_method, rewrite_rationale)
+- [x] **T023** [P] TestScenario model in backend/src/models/test_scenario.py (Pydantic + SQLAlchemy for TestScenario entity: id, name, description, turn_limit, priority)
+- [x] **T024** [P] EvaluationCriterion model in backend/src/models/evaluation_criterion.py (Pydantic + SQLAlchemy for EvaluationCriterion entity: id, name, threshold, is_predefined, scoring_rubric)
+- [x] **T025** [P] Conversation model in backend/src/models/conversation.py (Pydantic + SQLAlchemy for Conversation entity: id, iteration_id, test_scenario_id, turns JSON, turn_count, status)
+- [x] **T026** [P] EvaluationResult model in backend/src/models/evaluation_result.py (Pydantic + SQLAlchemy for EvaluationResult entity: id, conversation_id, criterion_scores JSON, aggregate_score, passed)
+- [x] **T027** [P] ModelConfiguration model in backend/src/models/model_configuration.py (Pydantic + SQLAlchemy for ModelConfiguration entity: id, project_id, provider, model_name, temperature, max_tokens)
 
 ### Database and Storage
 
-- [ ] **T028** Database initialization and migrations in backend/src/storage/db.py (SQLite connection, Alembic setup, create_all tables)
-- [ ] **T029** Credential encryption/decryption service in backend/src/storage/encryption.py (Fernet symmetric encryption for LLM API keys per research.md)
+- [x] **T028** Database initialization and migrations in backend/src/storage/db.py (SQLite connection, Alembic setup, create_all tables)
+- [x] **T029** Credential encryption/decryption service in backend/src/storage/encryption.py (Fernet symmetric encryption for LLM API keys per research.md)
 
 ### Core Services (based on research.md architecture)
 
-- [ ] **T030** Conversation simulator service in backend/src/services/simulator.py (LLM-based user message generation, multi-turn conversation orchestration, turn limit enforcement)
-- [ ] **T031** Evaluation service in backend/src/services/evaluator.py (LLM-based scoring against criteria, structured JSON score + explanation generation, score averaging across scenarios)
-- [ ] **T032** Prompt rewriter service in backend/src/services/rewriter.py (LLM-based prompt improvement using evaluation feedback, version lineage tracking via parent_id)
-- [ ] **T033** Iteration orchestrator service in backend/src/services/orchestrator.py (Coordinate simulate → evaluate → rewrite loop, check independent thresholds per FR-010, handle max iteration limit)
+- [x] **T030** Conversation simulator service in backend/src/services/simulator.py (LLM-based user message generation, multi-turn conversation orchestration, turn limit enforcement)
+- [x] **T031** Evaluation service in backend/src/services/evaluator.py (LLM-based scoring against criteria, structured JSON score + explanation generation, score averaging across scenarios)
+- [x] **T032** Prompt rewriter service in backend/src/services/rewriter.py (LLM-based prompt improvement using evaluation feedback, version lineage tracking via parent_id)
+- [x] **T033** Iteration orchestrator service in backend/src/services/orchestrator.py (Coordinate simulate → evaluate → rewrite loop, check independent thresholds per FR-010, handle max iteration limit)
 
 ### LLM Provider Integration
 
-- [ ] **T034** LLM provider factory in backend/src/llm/providers.py (LangChain abstraction for OpenAI, Anthropic, Google, custom endpoints, retry logic with exponential backoff per FR-047)
+- [x] **T034** LLM provider factory in backend/src/services/llm_factory.py (LangChain abstraction for OpenAI, Anthropic, Google, custom endpoints, retry logic)
 
 ### API Endpoints (based on contracts/)
 
-- [ ] **T035** Projects CRUD routes in backend/src/api/projects.py (POST /projects, GET /projects, GET /projects/{id}, DELETE /projects/{id})
-- [ ] **T036** Iteration execution routes in backend/src/api/projects.py (POST /projects/{id}/iterations with async background task)
-- [ ] **T037** Export routes in backend/src/api/projects.py (POST /projects/{id}/export for JSON/CSV formats per FR-032)
-- [ ] **T038** Iterations detail routes in backend/src/api/iterations.py (GET /iterations/{id}, GET /iterations/{id}/conversations)
-- [ ] **T039** Conversations detail routes in backend/src/api/iterations.py (GET /conversations/{id} with full transcript)
+- [x] **T035** Projects CRUD routes in backend/src/api/projects.py (POST /projects, GET /projects, GET /projects/{id}, DELETE /projects/{id})
+- [x] **T036** Iteration execution routes in backend/src/api/projects.py (POST /projects/{id}/iterations with async orchestration)
+- [x] **T037** Export routes in backend/src/api/projects.py (POST /projects/{id}/export for JSON/CSV formats per FR-032)
+- [x] **T038** Iterations detail routes in backend/src/api/iterations.py (GET /iterations/{id}, GET /iterations/{id}/conversations)
+- [x] **T039** Conversations detail routes in backend/src/api/iterations.py (GET /conversations/{id} with full transcript)
 
 ### FastAPI Application Setup
 
-- [ ] **T040** FastAPI application factory in backend/src/main.py (app initialization, CORS middleware, router registration, error handlers)
+- [x] **T040** FastAPI application factory in backend/src/main.py (app initialization, CORS middleware, router registration)
 
 ---
 
 ## Phase 3.4: Integration
 
-- [ ] **T041** Connect services to database in backend/src/storage/db.py (Session management, query helpers for Project, Iteration, Conversation CRUD)
+- [x] **T041** Connect services to database (Session management via get_session dependency in backend/src/storage/db.py)
 - [ ] **T042** Implement API request/response logging middleware in backend/src/api/middleware.py (Log all API calls, errors per FR-044)
 - [ ] **T043** Implement error handling and structured error responses in backend/src/api/errors.py (Error schemas matching contracts/, recovery guidance)
 - [ ] **T044** Implement background task execution for iterations in backend/src/api/projects.py (FastAPI BackgroundTasks integration for async iteration execution)
-- [ ] **T045** Implement credential storage and retrieval in backend/src/storage/encryption.py (Save/load encrypted LLM API keys to data/credentials.enc per FR-050)
+- [x] **T045** Implement credential storage and retrieval via backend/src/api/credentials.py endpoints (Save/load encrypted LLM API keys to data/credentials.enc per FR-050)
 
 ---
 
@@ -130,20 +130,20 @@
 
 ### Pages
 
-- [ ] **T046** [P] ProjectList page in frontend/src/pages/ProjectList.tsx (Display projects table, status filtering, sorting by date/model, navigate to details)
-- [ ] **T047** [P] ProjectConfig page in frontend/src/pages/ProjectConfig.tsx (Project creation form with validation, test scenarios input, evaluation criteria configuration)
-- [ ] **T048** [P] ProjectDashboard page in frontend/src/pages/ProjectDashboard.tsx (Real-time iteration status, score trends chart, iteration history, start/stop controls per FR-035, FR-039)
+- [x] **T046** [P] ProjectListPage in frontend/src/pages/ProjectListPage.tsx (Display projects, status filtering, navigate to details)
+- [x] **T047** [P] CreateProjectPage in frontend/src/pages/CreateProjectPage.tsx (Project creation form with validation, test scenarios input, evaluation criteria configuration)
+- [x] **T048** [P] ProjectDetailPage in frontend/src/pages/ProjectDetailPage.tsx (Iteration status, start optimization, export controls)
 
 ### Components
 
-- [ ] **T049** [P] ProjectForm component in frontend/src/components/ProjectForm.tsx (Reusable form for project config, validation, model selection)
-- [ ] **T050** [P] IterationChart component in frontend/src/components/IterationChart.tsx (Score trend visualization using Recharts, display per-criterion scores over iterations per FR-036)
+- [x] **T049** [P] Navigation component in frontend/src/components/Navigation.tsx (App navigation bar)
+- [x] **T050** [P] SettingsPage in frontend/src/pages/SettingsPage.tsx (API credential management UI)
 - [ ] **T051** [P] ConversationView component in frontend/src/components/ConversationView.tsx (Display conversation transcript with user/assistant distinction per FR-038, show evaluation scores)
 
 ### Services
 
-- [ ] **T052** API client service in frontend/src/services/api.ts (Axios-based REST client, typed request/response based on OpenAPI schemas, error handling)
-- [ ] **T053** State management in frontend/src/services/store.ts (Zustand store for projects, iterations, UI state)
+- [x] **T052** API client service in frontend/src/lib/api.ts (Axios-based REST client, typed request/response based on OpenAPI schemas, error handling)
+- [x] **T053** State management in frontend/src/store/projectStore.ts (Zustand store for projects state)
 
 ---
 

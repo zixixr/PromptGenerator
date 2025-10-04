@@ -1,0 +1,46 @@
+# Default configuration for Prompt Optimizer
+
+# Server settings
+server:
+  host: "localhost"
+  port: 8000
+  reload: true  # Development mode
+
+# Iteration settings
+optimization:
+  default_max_iterations: 20
+  max_iteration_limit: 100  # Hard cap
+  iteration_timeout_seconds: 600  # 10 minutes per iteration
+
+# LLM settings
+llm:
+  default_temperature: 0.7
+  default_max_tokens: 2000
+  request_timeout_seconds: 60
+  max_retries: 3
+  retry_delay_seconds: 2
+
+# Database settings
+database:
+  url: "sqlite:///./data/prompt_optimizer.db"
+  echo: false  # SQL logging
+
+# Storage settings
+storage:
+  credentials_file: "./data/credentials.enc"
+  conversation_transcripts_dir: "./data/transcripts"
+
+# Logging settings
+logging:
+  level: "INFO"
+  format: "json"
+  file: "./logs/app.log"
+
+# Security settings
+security:
+  encryption_key_file: "./data/encryption.key"
+
+# Performance settings
+performance:
+  max_concurrent_projects: 5
+  conversation_turn_limit_default: 10
