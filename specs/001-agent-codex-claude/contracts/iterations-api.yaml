@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Prompt Iteration System - Iterations API
+  version: 1.0.0
+  description: Iteration execution and conversation viewing
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+
+paths:
+  /iterations/{iterationId}:
+    get:
+      summary: Get iteration details
+      operationId: getIteration
+      tags: [Iterations]
+      parameters:
+        - $ref: '#/components/parameters/IterationId'
+      responses:
+        '200':
+          description: Iteration details with conversations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IterationDetail'
+        '404':
+          description: Iteration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /iterations/{iterationId}/conversations:
+    get:
+      summary: List iteration conversations
+      operationId: listConversations
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/IterationId'
+      responses:
+        '200':
+          description: List of conversations with evaluations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+        '404':
+          description: Iteration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /conversations/{conversationId}:
+    get:
+      summary: Get conversation transcript
+      operationId: getConversation
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Full conversation with evaluation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  parameters:
+    IterationId:
+      name: iterationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Iteration UUID
+
+    ConversationId:
+      name: conversationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Conversation UUID
+
+  schemas:
+    IterationDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        iteration_number:
+          type: integer
+        status:
+          type: string
+          enum: [running, completed, failed]
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        duration_seconds:
+          type: integer
+          nullable: true
+        passed_criteria_count:
+          type: integer
+        total_criteria_count:
+          type: integer
+        all_criteria_passed:
+          type: boolean
+        prompt:
+          $ref: '#/components/schemas/Prompt'
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conversation'
+        aggregated_scores:
+          type: object
+          description: Map of criterion_id to averaged score across all conversations
+          additionalProperties:
+            type: object
+            properties:
+              score:
+                type: number
+              threshold:
+                type: number
+              passed:
+                type: boolean
+      required: [id, project_id, iteration_number, status, started_at, passed_criteria_count, total_criteria_count, all_criteria_passed]
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        iteration_id:
+          type: string
+          format: uuid
+        test_scenario_id:
+          type: string
+          format: uuid
+        test_scenario_name:
+          type: string
+        turn_count:
+          type: integer
+        status:
+          type: string
+          enum: [running, completed, failed, truncated]
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        evaluation_result:
+          $ref: '#/components/schemas/EvaluationResult'
+      required: [id, iteration_id, test_scenario_id, test_scenario_name, turn_count, status, started_at]
+
+    ConversationDetail:
+      allOf:
+        - $ref: '#/components/schemas/Conversation'
+        - type: object
+          properties:
+            turns:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConversationTurn'
+            metadata:
+              type: object
+              description: Model parameters, API call info
+          required: [turns]
+
+    ConversationTurn:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required: [role, message, timestamp]
+
+    EvaluationResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversation_id:
+          type: string
+          format: uuid
+        criterion_scores:
+          type: object
+          description: Map of criterion_id to score and explanation
+          additionalProperties:
+            type: object
+            properties:
+              score:
+                type: number
+                minimum: 0
+                maximum: 100
+              explanation:
+                type: string
+            required: [score, explanation]
+        aggregate_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        passed:
+          type: boolean
+        evaluated_at:
+          type: string
+          format: date-time
+        evaluator_model:
+          type: string
+        evaluation_duration_seconds:
+          type: number
+      required: [id, conversation_id, criterion_scores, aggregate_score, passed, evaluated_at, evaluator_model]
+
+    Prompt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+          minLength: 1
+          maxLength: 50000
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        generation_method:
+          type: string
+          enum: [initial, llm_rewrite, manual_edit]
+        rewrite_rationale:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, text, generation_method, created_at]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+          nullable: true
+        status_code:
+          type: integer
+      required: [error, status_code]

@@ -1,0 +1,545 @@
+openapi: 3.0.3
+info:
+  title: Prompt Iteration System - Projects API
+  version: 1.0.0
+  description: Project CRUD operations for prompt optimization
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+
+paths:
+  /projects:
+    get:
+      summary: List all projects
+      operationId: listProjects
+      tags: [Projects]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, running, completed, failed, stopped]
+          description: Filter by project status
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectSummary'
+                  total:
+                    type: integer
+
+    post:
+      summary: Create new project
+      operationId: createProject
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project details
+      operationId: getProject
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete project
+      operationId: deleteProject
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project deleted
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/iterations:
+    get:
+      summary: List project iterations
+      operationId: listIterations
+      tags: [Iterations]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: List of iterations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  iterations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Iteration'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Start new iteration
+      operationId: startIteration
+      tags: [Iterations]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '202':
+          description: Iteration started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Iteration'
+        '400':
+          description: Cannot start iteration (project not in valid state)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/export:
+    post:
+      summary: Export project report
+      operationId: exportReport
+      tags: [Reports]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [json, csv]
+                  description: Export format (FR-032)
+              required: [format]
+      responses:
+        '200':
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JSON format report
+            text/csv:
+              schema:
+                type: string
+                description: CSV format report
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Project UUID
+
+  schemas:
+    ProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum: [draft, running, completed, failed, stopped]
+        created_at:
+          type: string
+          format: date-time
+        iteration_count:
+          type: integer
+        best_score:
+          type: number
+          nullable: true
+          description: Best aggregate score achieved
+      required: [id, name, status, created_at, iteration_count]
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        target_model:
+          type: string
+        initial_prompt:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        persona_description:
+          type: string
+        max_iterations:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        status:
+          type: string
+          enum: [draft, running, completed, failed, stopped]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        best_iteration_id:
+          type: string
+          format: uuid
+          nullable: true
+        model_configuration:
+          $ref: '#/components/schemas/ModelConfiguration'
+        test_scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestScenario'
+        evaluation_criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationCriterion'
+      required: [id, name, target_model, initial_prompt, persona_description, max_iterations, status, created_at, updated_at]
+
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        target_model:
+          type: string
+        initial_prompt:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        persona_description:
+          type: string
+        max_iterations:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        model_configuration:
+          $ref: '#/components/schemas/ModelConfigurationInput'
+        test_scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestScenarioInput'
+          minItems: 1
+        evaluation_criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationCriterionInput'
+          minItems: 1
+      required: [name, target_model, initial_prompt, persona_description, model_configuration, test_scenarios, evaluation_criteria]
+
+    ModelConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+          enum: [openai, anthropic, google, custom]
+        model_name:
+          type: string
+        api_endpoint:
+          type: string
+          nullable: true
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.7
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 128000
+          default: 2000
+        additional_params:
+          type: object
+          nullable: true
+      required: [id, provider, model_name, temperature, max_tokens]
+
+    ModelConfigurationInput:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum: [openai, anthropic, google, custom]
+        model_name:
+          type: string
+        api_endpoint:
+          type: string
+          nullable: true
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.7
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 128000
+          default: 2000
+        additional_params:
+          type: object
+          nullable: true
+      required: [provider, model_name]
+
+    TestScenario:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        expected_user_behavior:
+          type: string
+          nullable: true
+        turn_limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+        created_at:
+          type: string
+          format: date-time
+      required: [id, name, description, turn_limit, priority, created_at]
+
+    TestScenarioInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        expected_user_behavior:
+          type: string
+          nullable: true
+        turn_limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+      required: [name, description, turn_limit]
+
+    EvaluationCriterion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        threshold:
+          type: number
+          minimum: 0
+          maximum: 100
+        is_predefined:
+          type: boolean
+        scoring_rubric:
+          type: string
+          nullable: true
+        is_enabled:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, name, description, threshold, is_predefined, is_enabled, created_at]
+
+    EvaluationCriterionInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        threshold:
+          type: number
+          minimum: 0
+          maximum: 100
+        is_predefined:
+          type: boolean
+          default: false
+        scoring_rubric:
+          type: string
+          nullable: true
+        is_enabled:
+          type: boolean
+          default: true
+      required: [name, description, threshold]
+
+    Iteration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        iteration_number:
+          type: integer
+        status:
+          type: string
+          enum: [running, completed, failed]
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        duration_seconds:
+          type: integer
+          nullable: true
+        passed_criteria_count:
+          type: integer
+        total_criteria_count:
+          type: integer
+        all_criteria_passed:
+          type: boolean
+        prompt:
+          $ref: '#/components/schemas/Prompt'
+      required: [id, project_id, iteration_number, status, started_at, passed_criteria_count, total_criteria_count, all_criteria_passed]
+
+    Prompt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+          minLength: 1
+          maxLength: 50000
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        generation_method:
+          type: string
+          enum: [initial, llm_rewrite, manual_edit]
+        rewrite_rationale:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, text, generation_method, created_at]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+          nullable: true
+        status_code:
+          type: integer
+      required: [error, status_code]
