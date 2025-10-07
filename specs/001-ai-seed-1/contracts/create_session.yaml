@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: Create Session API
+  version: 1.0.0
+  description: Creates a new conversation session with Doubao Seed 1.6
+
+paths:
+  /sessions:
+    post:
+      summary: Create new conversation session
+      description: |
+        Creates a new ephemeral session with a system prompt template.
+        Variables in the template ({{var}}) are substituted using Mustache syntax.
+        Missing variables are replaced with empty strings.
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - system_prompt_template
+              properties:
+                system_prompt_template:
+                  type: string
+                  description: System prompt with optional {{variable}} placeholders
+                  example: "You are a {{role}} assistant specializing in {{domain}}."
+                  minLength: 1
+                variables:
+                  type: object
+                  description: Key-value pairs for variable substitution (all values must be strings)
+                  additionalProperties:
+                    type: string
+                  example:
+                    role: "helpful"
+                    domain: "Python programming"
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - session_id
+                  - resolved_system_prompt
+                  - created_at
+                properties:
+                  session_id:
+                    type: string
+                    description: Unique session identifier (UUID hex format)
+                    example: "550e8400e29b41d4a716446655440000"
+                  resolved_system_prompt:
+                    type: string
+                    description: System prompt after variable substitution
+                    example: "You are a helpful assistant specializing in Python programming."
+                  created_at:
+                    type: string
+                    format: date-time
+                    description: Session creation timestamp (ISO 8601)
+                    example: "2025-10-06T15:30:00Z"
+        '400':
+          description: Invalid request (empty template, non-string variables)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "ValidationError"
+                detail: "system_prompt_template is required and cannot be empty"
+        '503':
+          description: Maximum session capacity reached (50 concurrent sessions)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "ServiceUnavailable"
+                detail: "Maximum session capacity (50) reached. Please delete inactive sessions."
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - detail
+      properties:
+        error:
+          type: string
+          description: Error type identifier
+        detail:
+          type: string
+          description: Human-readable error message
+        session_id:
+          type: string
+          description: Session ID if applicable

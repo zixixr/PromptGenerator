@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(python -m pytest tests/contract/test_create_session.py -v)",
+      "Bash(uvicorn:*)",
+      "Bash(python -m uvicorn:*)",
+      "Bash(curl -s http://127.0.0.1:8888/health)",
+      "Bash(curl -s -X POST http://127.0.0.1:8888/sessions -H \"Content-Type: application/json\" -d \"{\"\"system_prompt_template\"\": \"\"你是一个{{role}}助手，专注于{{domain}}领域\"\", \"\"variables\"\": {\"\"role\"\": \"\"友好的\"\", \"\"domain\"\": \"\"Python编程\"\"}}\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8888/sessions -H \"Content-Type: application/json\" -d '{\"\"system_prompt_template\"\": \"\"You are a helpful assistant\"\", \"\"variables\"\": {}}')",
+      "Bash(curl -s -X POST http://127.0.0.1:8888/sessions/32ad5038aa634b4391373386339cfa93/messages -H \"Content-Type: application/json\" -d '{\"\"message\"\": \"\"Hello, please introduce yourself in one sentence\"\"}')",
+      "Bash(curl -s -X POST http://127.0.0.1:8888/sessions -H \"Content-Type: application/json\" -d '{\"\"system_prompt_template\"\": \"\"You are a {{role}} assistant specializing in {{domain}}\"\", \"\"variables\"\": {\"\"role\"\": \"\"friendly\"\", \"\"domain\"\": \"\"data science\"\"}}')",
+      "Bash(curl -s http://127.0.0.1:8888/sessions/fe9af25922144aeda73b97ade75be61c/history)",
+      "Bash(python:*)",
+      "Bash(curl -s http://127.0.0.1:8888/sessions)",
+      "Bash(curl:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

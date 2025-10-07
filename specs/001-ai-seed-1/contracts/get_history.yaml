@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: Get History API
+  version: 1.0.0
+  description: Retrieve conversation history for a session
+
+paths:
+  /sessions/{session_id}/history:
+    get:
+      summary: Get conversation history
+      description: |
+        Returns the complete conversation history including:
+        - Original and resolved system prompts
+        - All message rounds (not just last 10)
+        - Session metadata (created_at, last_activity)
+        This is the same data written to the JSON history file.
+      operationId: getHistory
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Session identifier
+          example: "550e8400e29b41d4a716446655440000"
+      responses:
+        '200':
+          description: History retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - session_id
+                  - system_prompt_template
+                  - resolved_system_prompt
+                  - variables
+                  - created_at
+                  - last_activity
+                  - rounds
+                properties:
+                  session_id:
+                    type: string
+                    example: "550e8400e29b41d4a716446655440000"
+                  system_prompt_template:
+                    type: string
+                    description: Original template with {{variables}}
+                    example: "You are a {{role}} assistant"
+                  resolved_system_prompt:
+                    type: string
+                    description: After variable substitution
+                    example: "You are a helpful assistant"
+                  variables:
+                    type: object
+                    additionalProperties:
+                      type: string
+                    example:
+                      role: "helpful"
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2025-10-06T15:30:00Z"
+                  last_activity:
+                    type: string
+                    format: date-time
+                    example: "2025-10-06T15:35:00Z"
+                  rounds:
+                    type: array
+                    description: All conversation rounds
+                    items:
+                      type: object
+                      required:
+                        - round_number
+                        - user_message
+                        - assistant_response
+                        - timestamp
+                      properties:
+                        round_number:
+                          type: integer
+                          example: 1
+                        user_message:
+                          type: string
+                          example: "Hello"
+                        assistant_response:
+                          type: string
+                          example: "Hi! How can I help you?"
+                        timestamp:
+                          type: string
+                          format: date-time
+                          example: "2025-10-06T15:30:05Z"
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "SessionNotFound"
+                detail: "Session 550e8400e29b41d4a716446655440000 not found"
+                session_id: "550e8400e29b41d4a716446655440000"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - detail
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+        session_id:
+          type: string

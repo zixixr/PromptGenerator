@@ -1,0 +1,53 @@
+openapi: 3.0.3
+info:
+  title: Delete Session API
+  version: 1.0.0
+  description: Delete an active conversation session
+
+paths:
+  /sessions/{session_id}:
+    delete:
+      summary: Delete a session
+      description: |
+        Removes the session from memory. This action:
+        - Deletes the in-memory session data
+        - Stops processing any queued messages for this session
+        - Does NOT delete the JSON history file (files persist indefinitely)
+        - Is idempotent (deleting non-existent session returns 404)
+      operationId: deleteSession
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Session identifier to delete
+          example: "550e8400e29b41d4a716446655440000"
+      responses:
+        '204':
+          description: Session deleted successfully (no content)
+        '404':
+          description: Session not found (already deleted or never existed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "SessionNotFound"
+                detail: "Session 550e8400e29b41d4a716446655440000 not found"
+                session_id: "550e8400e29b41d4a716446655440000"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - detail
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+        session_id:
+          type: string

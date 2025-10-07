@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: Send Message API
+  version: 1.0.0
+  description: Send a message to an existing conversation session
+
+paths:
+  /sessions/{session_id}/messages:
+    post:
+      summary: Send message to session
+      description: |
+        Sends a user message to Doubao Seed 1.6 and returns the assistant's response.
+        Context includes the system prompt and last 10 conversation rounds.
+        If >10 rounds exist, older rounds are excluded (sliding window).
+        Concurrent messages to the same session are queued and processed sequentially.
+      operationId: sendMessage
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Session identifier from create session response
+          example: "550e8400e29b41d4a716446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: User message content (cannot be empty or whitespace-only)
+                  example: "Explain list comprehensions in Python"
+                  minLength: 1
+      responses:
+        '200':
+          description: Message sent successfully, assistant response received
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - session_id
+                  - round_number
+                  - user_message
+                  - assistant_response
+                  - timestamp
+                properties:
+                  session_id:
+                    type: string
+                    description: Session identifier
+                    example: "550e8400e29b41d4a716446655440000"
+                  round_number:
+                    type: integer
+                    description: Sequential round number (1, 2, 3, ...)
+                    example: 3
+                  user_message:
+                    type: string
+                    description: Echo of user's message
+                    example: "Explain list comprehensions in Python"
+                  assistant_response:
+                    type: string
+                    description: Assistant's response from Doubao API
+                    example: "List comprehensions provide a concise way to create lists..."
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: When the message was sent (ISO 8601)
+                    example: "2025-10-06T15:35:10Z"
+        '400':
+          description: Invalid request (empty message)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "ValidationError"
+                detail: "message cannot be empty or whitespace-only"
+                session_id: "550e8400e29b41d4a716446655440000"
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "SessionNotFound"
+                detail: "Session 550e8400e29b41d4a716446655440000 not found"
+                session_id: "550e8400e29b41d4a716446655440000"
+        '429':
+          description: Doubao API rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "RateLimitExceeded"
+                detail: "Doubao API rate limit exceeded. Please try again later."
+                session_id: "550e8400e29b41d4a716446655440000"
+        '503':
+          description: Doubao API unavailable (connection timeout)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "ServiceUnavailable"
+                detail: "Doubao API is currently unavailable. Connection timeout after 6 seconds."
+                session_id: "550e8400e29b41d4a716446655440000"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - detail
+      properties:
+        error:
+          type: string
+          description: Error type identifier
+        detail:
+          type: string
+          description: Human-readable error message
+        session_id:
+          type: string
+          description: Session ID if applicable

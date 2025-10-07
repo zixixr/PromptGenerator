@@ -47,7 +47,45 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Based on `.specify/memory/constitution.md`, verify:
+
+### Principle I: Code Quality First
+- [ ] Architecture promotes single-responsibility modules
+- [ ] Design avoids unnecessary complexity
+- [ ] Code structure will be reviewable and maintainable
+
+### Principle II: Test-Driven Development (NON-NEGOTIABLE)
+- [ ] Contract tests planned for all API boundaries
+- [ ] Integration tests planned for user workflows
+- [ ] Unit tests planned for complex logic
+- [ ] Tests will be written BEFORE implementation
+
+### Principle III: User Experience Consistency
+- [ ] UI patterns align with existing application conventions
+- [ ] Accessibility requirements defined (WCAG 2.1 AA minimum)
+- [ ] Cross-platform compatibility addressed
+- [ ] Error messages are user-friendly and actionable
+
+### Principle IV: Performance Requirements
+- [ ] Explicit response time targets defined (e.g., <200ms p95)
+- [ ] Resource constraints specified (memory, CPU)
+- [ ] Scalability expectations documented
+- [ ] Performance tests planned
+
+### Principle V: Simplicity Over Cleverness
+- [ ] Solution is the simplest that meets requirements
+- [ ] Complex patterns justified in writing (if any)
+- [ ] YAGNI principle applied - no premature optimization
+- [ ] No over-engineering detected
+
+### Principle VI: Observability & Debugging
+- [ ] Structured logging planned with appropriate levels
+- [ ] Request tracing considered for distributed operations
+- [ ] Error handling provides clear context
+- [ ] Health checks planned (if applicable)
+- [ ] No sensitive data in logs
+
+**Violations**: If any checks fail, document justification in Complexity Tracking section
 
 ## Project Structure
 
@@ -152,7 +190,7 @@ directories captured above]
    - Quickstart test = story validation steps
 
 5. **Update agent file incrementally** (O(1) operation):
-   - Run `.specify/scripts/powershell/update-agent-context.ps1 -AgentType codex`
+   - Run `.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude`
      **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
    - If exists: Add only NEW tech from current plan
    - Preserve manual additions between markers
@@ -216,4 +254,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*

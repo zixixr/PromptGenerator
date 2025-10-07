@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: List Sessions API
+  version: 1.0.0
+  description: List all active conversation sessions
+
+paths:
+  /sessions:
+    get:
+      summary: List all active sessions
+      description: |
+        Returns summary information for all sessions currently in memory.
+        Sessions are ephemeral and do not persist across server restarts.
+      operationId: listSessions
+      responses:
+        '200':
+          description: Sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - sessions
+                  - total
+                properties:
+                  sessions:
+                    type: array
+                    description: Array of session summaries
+                    items:
+                      type: object
+                      required:
+                        - session_id
+                        - created_at
+                        - last_activity
+                        - message_count
+                      properties:
+                        session_id:
+                          type: string
+                          example: "550e8400e29b41d4a716446655440000"
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2025-10-06T15:30:00Z"
+                        last_activity:
+                          type: string
+                          format: date-time
+                          example: "2025-10-06T15:35:00Z"
+                        message_count:
+                          type: integer
+                          description: Total number of conversation rounds
+                          example: 5
+                  total:
+                    type: integer
+                    description: Total number of active sessions
+                    example: 12
+              example:
+                sessions:
+                  - session_id: "550e8400e29b41d4a716446655440000"
+                    created_at: "2025-10-06T15:30:00Z"
+                    last_activity: "2025-10-06T15:35:00Z"
+                    message_count: 5
+                  - session_id: "6fa459ea3b45454a9da36bb77b8e6c57"
+                    created_at: "2025-10-06T15:32:00Z"
+                    last_activity: "2025-10-06T15:34:00Z"
+                    message_count: 3
+                total: 2
