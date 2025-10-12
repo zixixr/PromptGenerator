@@ -1,16 +1,18 @@
 .env
 .env.*
-conversations/
 __pycache__/
 .pytest_cache/
 *.pyc
 
-# Temporary test files
-test_*.py
-verify_*.py
-*.json
-!package*.json
-*.txt
-!requirements.txt
-nul
-=1.0.0
+# Temporary test files in root
+/test_*.py
+/verify_*.py
+/msg*.json
+/capricorn*.json
+/libra*.json
+/session_id.txt
+/response_*.txt
+/test_request.json
+/*_output.txt
+/nul
+/=1.0.0
