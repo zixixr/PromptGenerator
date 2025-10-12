@@ -4,3 +4,13 @@ conversations/
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Temporary test files
+test_*.py
+verify_*.py
+*.json
+!package*.json
+*.txt
+!requirements.txt
+nul
+=1.0.0
