@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from src.models.requests import CreateSessionRequest, SendMessageRequest
 from src.models.responses import (
     CreateSessionResponse,
@@ -45,10 +46,16 @@ async def create_session(request_data: CreateSessionRequest, request: Request):
             created_at=session.created_at,
         )
     except ServiceUnavailable as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        return JSONResponse(
+            status_code=503,
+            content={"error": "ServiceUnavailable", "detail": str(e)},
+        )
     except Exception as e:
         logger.error(f"Error creating session: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "InternalServerError", "detail": "Internal server error"},
+        )
 
 
 @router.post(
@@ -78,17 +85,34 @@ async def send_message(
             timestamp=message_round.timestamp,
         )
     except SessionNotFound:
-        raise HTTPException(
+        return JSONResponse(
             status_code=404,
-            detail=f"Session {session_id} not found",
+            content={
+                "error": "SessionNotFound",
+                "detail": f"Session {session_id} not found",
+                "session_id": session_id,
+            },
         )
     except RateLimitExceeded as e:
-        raise HTTPException(status_code=429, detail=str(e))
+        return JSONResponse(
+            status_code=429,
+            content={"error": "RateLimitExceeded", "detail": str(e), "session_id": session_id},
+        )
     except ServiceUnavailable as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        return JSONResponse(
+            status_code=503,
+            content={"error": "ServiceUnavailable", "detail": str(e), "session_id": session_id},
+        )
     except Exception as e:
         logger.error(f"Error sending message to session {session_id}: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "InternalServerError",
+                "detail": "Internal server error",
+                "session_id": session_id,
+            },
+        )
 
 
 @router.get(
@@ -111,13 +135,24 @@ async def get_history(session_id: str, request: Request):
             rounds=session.rounds,
         )
     except SessionNotFound:
-        raise HTTPException(
+        return JSONResponse(
             status_code=404,
-            detail=f"Session {session_id} not found",
+            content={
+                "error": "SessionNotFound",
+                "detail": f"Session {session_id} not found",
+                "session_id": session_id,
+            },
         )
     except Exception as e:
         logger.error(f"Error getting history for session {session_id}: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "InternalServerError",
+                "detail": "Internal server error",
+                "session_id": session_id,
+            },
+        )
 
 
 @router.get("/sessions", response_model=ListSessionsResponse)
@@ -138,7 +173,13 @@ async def list_sessions(request: Request):
         return ListSessionsResponse(sessions=summaries, total=len(summaries))
     except Exception as e:
         logger.error(f"Error listing sessions: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "InternalServerError",
+                "detail": "Internal server error",
+            },
+        )
 
 
 @router.delete(
@@ -152,10 +193,21 @@ async def delete_session(session_id: str, request: Request):
         session_manager = get_session_manager(request)
         await session_manager.delete_session(session_id)
     except SessionNotFound:
-        raise HTTPException(
+        return JSONResponse(
             status_code=404,
-            detail=f"Session {session_id} not found",
+            content={
+                "error": "SessionNotFound",
+                "detail": f"Session {session_id} not found",
+                "session_id": session_id,
+            },
         )
     except Exception as e:
         logger.error(f"Error deleting session {session_id}: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "InternalServerError",
+                "detail": "Internal server error",
+                "session_id": session_id,
+            },
+        )

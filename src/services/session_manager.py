@@ -123,38 +123,42 @@ class SessionManager:
         """
         session = await self.get_session(session_id)
 
-        # Build context (last 10 rounds)
-        context = []
-        last_10_rounds = session.rounds[-10:] if len(session.rounds) > 10 else session.rounds
-        for round in last_10_rounds:
-            context.append({"role": "user", "content": round.user_message})
-            context.append({"role": "assistant", "content": round.assistant_response})
-
-        # Call Doubao API
-        try:
-            assistant_response = await self.doubao_client.send_message(
-                system_prompt=session.resolved_system_prompt,
-                context=context,
-                user_message=message,
+        # Ensure single-flight per session to maintain order and avoid race conditions
+        async with session.lock:
+            # Build context (last 10 rounds)
+            context = []
+            last_10_rounds = (
+                session.rounds[-10:] if len(session.rounds) > 10 else session.rounds
             )
-        except Exception as e:
-            logger.error(f"Doubao API error for session {session_id}: {e}")
-            raise
+            for round in last_10_rounds:
+                context.append({"role": "user", "content": round.user_message})
+                context.append({"role": "assistant", "content": round.assistant_response})
 
-        # Create message round
-        round_number = len(session.rounds) + 1
-        message_round = MessageRound(
-            round_number=round_number,
-            user_message=message,
-            assistant_response=assistant_response,
-        )
+            # Call Doubao API
+            try:
+                assistant_response = await self.doubao_client.send_message(
+                    system_prompt=session.resolved_system_prompt,
+                    context=context,
+                    user_message=message,
+                )
+            except Exception as e:
+                logger.error(f"Doubao API error for session {session_id}: {e}")
+                raise
 
-        # Update session
-        session.rounds.append(message_round)
-        session.last_activity = datetime.now(timezone.utc)
+            # Create message round
+            round_number = len(session.rounds) + 1
+            message_round = MessageRound(
+                round_number=round_number,
+                user_message=message,
+                assistant_response=assistant_response,
+            )
 
-        # Save history (async, non-blocking)
-        asyncio.create_task(self.file_storage.save_history(session))
+            # Update session
+            session.rounds.append(message_round)
+            session.last_activity = datetime.now(timezone.utc)
 
-        logger.info(f"Session {session_id} round {round_number} completed")
-        return message_round
+            # Save history (async, non-blocking)
+            asyncio.create_task(self.file_storage.save_history(session))
+
+            logger.info(f"Session {session_id} round {round_number} completed")
+            return message_round

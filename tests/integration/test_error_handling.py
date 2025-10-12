@@ -66,7 +66,7 @@ async def test_capacity_limit_error(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_doubao_timeout_error(client: AsyncClient, test_session_id: str):
     """Test Doubao API timeout (mock 6-second timeout, expect 503)."""
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         import asyncio
         from src.services.doubao_client import ServiceUnavailable
 
@@ -134,7 +134,7 @@ async def test_validation_error_empty_template(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_rate_limit_error(client: AsyncClient, test_session_id: str):
     """Test Doubao rate limit error handling."""
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         from src.services.doubao_client import RateLimitExceeded
         mock_send.side_effect = RateLimitExceeded("Rate limit exceeded")
 

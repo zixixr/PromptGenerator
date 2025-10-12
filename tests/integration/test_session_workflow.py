@@ -22,7 +22,7 @@ async def test_session_workflow(client: AsyncClient):
     assert create_response.json()["resolved_system_prompt"] == "You are a helpful assistant"
 
     # Step 2: Send first message
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response to first message"
 
         msg1_response = await client.post(
@@ -90,7 +90,7 @@ async def test_workflow_with_no_variables(client: AsyncClient):
     session_id = create_response.json()["session_id"]
 
     # Send message
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response"
 
         msg_response = await client.post(

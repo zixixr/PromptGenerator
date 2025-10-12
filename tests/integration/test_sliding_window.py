@@ -14,7 +14,7 @@ async def test_sliding_window_context(client: AsyncClient):
     )
     session_id = create_response.json()["session_id"]
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response"
 
         # Send 12 messages
@@ -69,7 +69,7 @@ async def test_sliding_window_with_fewer_than_10_rounds(client: AsyncClient):
     )
     session_id = create_response.json()["session_id"]
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         # Send 5 messages
         mock_send.return_value = "Response"
         for i in range(5):
@@ -106,7 +106,7 @@ async def test_sliding_window_exactly_10_rounds(client: AsyncClient):
     )
     session_id = create_response.json()["session_id"]
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response"
 
         # Send exactly 10 messages

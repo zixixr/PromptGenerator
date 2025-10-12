@@ -33,7 +33,7 @@ pip install -r requirements.txt
 3. Configure environment variables:
 ```bash
 cp .env.example .env
-# Edit .env and add your DOUBAO_API_KEY
+# Edit .env and add your ARK_API_KEY
 ```
 
 ## Configuration
@@ -41,8 +41,8 @@ cp .env.example .env
 Create a `.env` file with the following variables:
 
 ```env
-DOUBAO_API_KEY=your_api_key_here
-DOUBAO_API_ENDPOINT=https://ark.cn-beijing.volces.com/api/v3/chat/completions
+ARK_API_KEY=your_api_key_here
+DOUBAO_API_ENDPOINT=https://ark.cn-beijing.volces.com/api/v3
 MAX_SESSIONS=50
 CONVERSATIONS_DIR=./conversations
 ```
@@ -123,7 +123,7 @@ pytest --cov=src tests/
 .
 ├── src/
 │   ├── models/           # Data models (Session, MessageRound, etc.)
-│   ├── services/         # Business logic (SessionManager, DoubaClient, etc.)
+│   ├── services/         # Business logic (SessionManager, DoubaoClient, etc.)
 │   ├── routes/           # API endpoints
 │   ├── config.py         # Configuration management
 │   ├── logging_config.py # Structured logging setup

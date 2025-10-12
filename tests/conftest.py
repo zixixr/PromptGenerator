@@ -17,10 +17,10 @@ def mock_doubao_client():
 @pytest.fixture
 def test_env():
     """Set test environment variables."""
-    os.environ["DOUBAO_API_KEY"] = "test_api_key_123"
+    os.environ["ARK_API_KEY"] = "test_api_key_123"
     os.environ["MAX_SESSIONS"] = "50"
     os.environ["CONVERSATIONS_DIR"] = "./test_conversations"
     yield
     # Cleanup
-    if "DOUBAO_API_KEY" in os.environ:
-        del os.environ["DOUBAO_API_KEY"]
+    if "ARK_API_KEY" in os.environ:
+        del os.environ["ARK_API_KEY"]

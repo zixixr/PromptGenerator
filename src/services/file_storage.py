@@ -24,15 +24,24 @@ class FileStorage:
 
         Note:
             Errors are logged but not raised (non-blocking operation)
+            Each session has one JSON file that gets updated on every message
         """
         try:
             # Create directory if not exists
             self.directory.mkdir(parents=True, exist_ok=True)
 
-            # Generate filename: YYYYMMDDHHmmss_sessionid.json
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filename = f"{timestamp}_{session.session_id}.json"
+            # Fixed filename per session: sessionid.json
+            filename = f"{session.session_id}.json"
             filepath = self.directory / filename
+
+            # Delete old session files with timestamp prefix (for backward compatibility)
+            pattern = f"*_{session.session_id}.json"
+            for old_file in self.directory.glob(pattern):
+                try:
+                    old_file.unlink()
+                    logger.debug(f"Deleted old session file: {old_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to delete old file {old_file}: {e}")
 
             # Prepare session data for JSON
             session_data = {
@@ -60,8 +69,8 @@ class FileStorage:
                     json.dumps(session_data, ensure_ascii=False, indent=2)
                 )
 
-            # Rename temp file to final file
-            temp_filepath.rename(filepath)
+            # Replace existing file (atomic on Windows/Unix)
+            temp_filepath.replace(filepath)
             logger.debug(f"Saved session history to {filepath}")
 
         except Exception as e:

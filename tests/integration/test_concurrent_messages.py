@@ -15,7 +15,7 @@ async def test_concurrent_message_queuing(client: AsyncClient):
     )
     session_id = create_response.json()["session_id"]
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         # Mock Doubao responses
         call_count = 0
 
@@ -75,7 +75,7 @@ async def test_concurrent_messages_maintain_order(client: AsyncClient):
     )
     session_id = create_response.json()["session_id"]
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response"
 
         # Send 5 concurrent messages
@@ -117,7 +117,7 @@ async def test_concurrent_messages_to_different_sessions(client: AsyncClient):
         )
         sessions.append(response.json()["session_id"])
 
-    with patch("src.services.doubao_client.DoubaClient.send_message") as mock_send:
+    with patch("src.services.doubao_client.DoubaoClient.send_message") as mock_send:
         mock_send.return_value = "Response"
 
         # Send message to each session concurrently

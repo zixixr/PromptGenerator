@@ -36,6 +36,8 @@ class Session(BaseModel):
         super().__init__(**data)
         # Initialize message queue (not serialized)
         self._message_queue = asyncio.Queue()
+        # Per-session lock to ensure sequential message processing
+        self._lock = asyncio.Lock()
 
     @property
     def message_queue(self):
@@ -43,3 +45,10 @@ class Session(BaseModel):
         if not hasattr(self, "_message_queue"):
             self._message_queue = asyncio.Queue()
         return self._message_queue
+
+    @property
+    def lock(self):
+        """Get or create the per-session asyncio lock."""
+        if not hasattr(self, "_lock"):
+            self._lock = asyncio.Lock()
+        return self._lock

@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import List, Dict
 from openai import OpenAI
 from src.config import settings
@@ -28,11 +29,13 @@ class DoubaoClient:
         self.client = OpenAI(
             base_url=self.endpoint,
             api_key=self.api_key,
+            timeout=120.0,  # Increase client-level timeout
+            max_retries=2,  # Reduce retries to fail faster
         )
-        self.timeout = 6.0  # 6 second timeout for first token
+        self.timeout = 90.0  # 90 second timeout for first token
 
     async def send_message(
-        self, system_prompt: str, context: List[Dict], user_message: str, timeout: int = 6
+        self, system_prompt: str, context: List[Dict], user_message: str, timeout: int = 90
     ) -> str:
         """
         Send message to Doubao API with context.
@@ -56,11 +59,15 @@ class DoubaoClient:
         messages.append({"role": "user", "content": user_message})
 
         try:
-            # Call OpenAI-compatible API (synchronous in async function)
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                timeout=timeout,
+            # Call OpenAI-compatible API in executor to avoid blocking event loop
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    timeout=timeout,
+                )
             )
 
             # Extract assistant response
@@ -81,8 +88,41 @@ class DoubaoClient:
             # Check for timeout
             if "timeout" in error_msg.lower():
                 logger.error("Doubao API request timed out")
-                raise ServiceUnavailable("Request timed out after 6 seconds")
+                raise ServiceUnavailable("Request timed out after 30 seconds")
             
             # Generic error
             logger.error(f"Doubao API error: {e}")
             raise ServiceUnavailable(f"API error: {str(e)}")
+
+    async def health_check(self) -> Dict:
+        """Check connectivity to Doubao API.
+
+        Tries to list models via OpenAI-compatible SDK. Does not consume tokens.
+
+        Returns dict with keys: ok (bool), model_available (optional bool), error (optional str)
+        """
+        try:
+            loop = asyncio.get_running_loop()
+            # Call synchronous SDK in a thread to avoid blocking event loop
+            resp = await loop.run_in_executor(None, lambda: self.client.models.list())
+            ok = True
+
+            # Try to detect whether configured model exists
+            model_available = None
+            try:
+                items = getattr(resp, "data", None) or []
+                ids = []
+                for m in items:
+                    mid = getattr(m, "id", None)
+                    if mid is None and isinstance(m, dict):
+                        mid = m.get("id")
+                    if mid:
+                        ids.append(mid)
+                model_available = self.model in ids if ids else None
+            except Exception:
+                model_available = None
+
+            return {"ok": ok, "model_available": model_available}
+        except Exception as e:
+            logger.warning(f"Doubao health check failed: {e}")
+            return {"ok": False, "error": str(e)}
